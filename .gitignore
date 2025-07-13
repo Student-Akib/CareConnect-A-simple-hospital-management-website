@@ -1,0 +1,25 @@
+# Node dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Frontend build output
+public/build/
+public/dist/
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Optional: lock files if you don’t want them
+# package-lock.json
+# yarn.lock
