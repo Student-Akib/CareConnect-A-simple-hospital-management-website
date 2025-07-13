@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <a href="/" class="logo">CareConnect 🏥</a>
+            <ul class="nav-links">
+                <li><a href="/doctors.html">Find a Doctor</a></li>
+                <li><a href="/branches.html">Branches</a></li>
+                <li><a href="/appointments.html">Appointments</a></li>
+                <li><a href="/login.html" class="login-btn">Login / Dashboard</a></li>
+            </ul>
+            <button class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h2>Create Your CareConnect Account</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" minlength="6" required>
+                </div>
+                 <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm-password" required>
+                </div>
+                <button type="submit" class="form-btn">Create Account</button>
+            </form>
+            <div id="form-message"></div>
+            <p class="form-switch">Already have an account? <a href="/login.html">Login here</a></p>
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header with a Logout button -->
+    <header>
+        <nav class="container">
+            <a href="/" class="logo">CareConnect 🏥</a>
+            <ul class="nav-links">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="#" id="logout-btn" class="login-btn">Logout</a></li>
+            </ul>
+            <button class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="dashboard-container container">
+            <h1 id="welcome-message">Loading...</h1>
+            <p>From here you can manage patient profiles and your account settings.</p>
+
+            <div class="dashboard-cards">
+                <div class="dash-card">
+                    <h3>Manage Patients</h3>
+                    <p>View and manage patient profiles linked to your account.</p>
+                    <a href="/manage-patients.html" class="dash-btn">Go to Patients</a>
+                </div>
+                <div class="dash-card">
+                    <h3>Create Patient</h3>
+                    <p>Create a new patient profile to book appointments for.</p>
+                    <a href="/create-patient.html" class="dash-btn">Create New</a>
+                </div>
+                 <div class="dash-card">
+                    <h3>Account Settings</h3>
+                    <p>Update your email, password, and other personal information.</p>
+                    <a href="/account-settings.html" class="dash-btn">Update Settings</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

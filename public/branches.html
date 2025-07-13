@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Branches | CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Header (Same as index.html for consistency) -->
+    <header>
+        <nav class="container">
+            <a href="/" class="logo">CareConnect 🏥</a>
+            <ul class="nav-links">
+                <li><a href="/doctors.html">Find a Doctor</a></li>
+                <li><a href="/branches.html">Branches</a></li>
+                <li><a href="/appointments.html">Appointments</a></li>
+                <li><a href="/login.html" class="login-btn">Login / Dashboard</a></li>
+            </ul>
+            <button class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-title container">
+            <h1>Our Locations</h1>
+            <p>Find a CareConnect facility near you. We are ready to serve you with the best care.</p>
+        </section>
+
+        <!-- Container where branch cards will be dynamically inserted -->
+        <section id="branches-container" class="container">
+            <!-- Loading message will be replaced by JavaScript -->
+            <p class="loading-message">Loading our branches...</p>
+        </section>
+    </main>
+
+    <!-- Footer (Same as index.html) -->
+    <footer>
+        <div class="footer-container container">
+            <div class="footer-about">
+                <h4>About CareConnect</h4>
+                <p>Providing exceptional healthcare services since 2024. Your health and well-being are at the heart of everything we do.</p>
+            </div>
+            <div class="footer-staff">
+                <h4>For Internal Staff</h4>
+                <p>Authorized personnel can access the internal dashboard here.</p>
+                <a href="/internal/login.html">Receptionist & Staff Login</a>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact Us</h4>
+                <p>Email: contact@careconnect.hospital</p>
+                <p>Phone: +1 (234) 567-890</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CareConnect. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
