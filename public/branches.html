@@ -5,10 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Branches | CareConnect</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -16,18 +14,16 @@
     <!-- Header (Same as index.html for consistency) -->
     <header>
         <nav class="container">
-            <a href="/" class="logo">CareConnect 🏥</a>
+            <a href="/index.html" class="logo">CareConnect <span aria-label="stethoscope" role="img" style="color:#007bff;">🩺</span></a>
             <ul class="nav-links">
-                <li><a href="/doctors.html">Find a Doctor</a></li>
                 <li><a href="/branches.html">Branches</a></li>
-                <li><a href="/appointments.html">Appointments</a></li>
-                <li><a href="/login.html" class="login-btn">Login / Dashboard</a></li>
+                <li><a href="/login.html" class="login-btn">Login</a></li>
             </ul>
-            <button class="hamburger">
+            <div class="hamburger" aria-label="Open navigation menu" tabindex="0">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
-            </button>
+            </div>
         </nav>
     </header>
 
@@ -46,27 +42,23 @@
 
     <!-- Footer (Same as index.html) -->
     <footer>
-        <div class="footer-container container">
+        <div class="container footer-container">
             <div class="footer-about">
                 <h4>About CareConnect</h4>
-                <p>Providing exceptional healthcare services since 2024. Your health and well-being are at the heart of everything we do.</p>
-            </div>
-            <div class="footer-staff">
-                <h4>For Internal Staff</h4>
-                <p>Authorized personnel can access the internal dashboard here.</p>
-                <a href="/internal/login.html">Receptionist & Staff Login</a>
+                <p>CareConnect Hospital is committed to delivering compassionate, high-quality healthcare to our community. Our team of dedicated professionals is here to support you and your family at every stage of your health journey.</p>
             </div>
             <div class="footer-contact">
                 <h4>Contact Us</h4>
-                <p>Email: contact@careconnect.hospital</p>
-                <p>Phone: +1 (234) 567-890</p>
+                <p>Email: info@careconnect.com</p>
+                <p>Phone: (123) 456-7890</p>
+                <p>123 Wellness Ave, Healthy City, 12345</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 CareConnect. All Rights Reserved.</p>
+            &copy; 2024 CareConnect Hospital. All rights reserved.
         </div>
     </footer>
 
-    <script src="js/script.js"></script>
+    <script type="module" src="/js/branches.js"></script>
 </body>
 </html>

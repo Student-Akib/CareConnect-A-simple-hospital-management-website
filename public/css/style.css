@@ -489,69 +489,207 @@ footer {
     border: 1px solid #f5c6cb;
 }
 
-/* EDIT 4 */
-/* =================================== */
-/* Dashboard Styles                    */
-/* =================================== */
+/* Remove all previous dashboard and notification styles */
+.dashboard-main, .dashboard-nav, .welcome-banner, .notif-center, .notif-bell, .notif-badge, .notif-dropdown, .notif-list, .notif-item, .dashboard-cards, .dash-card, .dash-icon {
+    /* Dashboard styles */
+}
 
-.dashboard-container {
-    padding-top: 2rem;
+/* --- New Dashboard Styles --- */
+.dashboard-main {
+    padding-top: 2.5rem;
     padding-bottom: 4rem;
-}
-
-.dashboard-container h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.dashboard-container p {
-    font-size: 1.1rem;
-    color: #666;
-    margin-bottom: 3rem;
-}
-
-.dashboard-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.dash-card {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
-    border: 1px solid #e9ecef;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
 }
-
-.dash-card h3 {
-    font-size: 1.5rem;
+.dashboard-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+/* Restore blue button style for profile button and position it right */
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0;
+    flex: 1;
+}
+.welcome-banner {
+    background: #eaf4fb;
+    border-radius: 10px;
+    padding: 2.2rem 2.5rem 1.5rem 2.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    text-align: left;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto 2rem auto;
+}
+.welcome-banner h1 {
+    font-size: 2.3rem;
     color: #0056b3;
-    margin-top: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
-
-.dash-card p {
+.welcome-banner p {
+    color: #4a6fa1;
+    font-size: 1.1rem;
+}
+.notif-center {
+    position: relative;
+    margin-left: 0;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.notif-bell {
+    font-size: 1.7rem;
+    color: #007bff;
+}
+.notif-badge {
+    background: #dc3545;
+    color: #fff;
+    font-size: 0.9rem;
+    border-radius: 50%;
+    padding: 0.2rem 0.6rem;
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    font-weight: 700;
+    display: inline-block;
+}
+/* Improved notification dropdown styles */
+.notif-dropdown {
+    position: absolute;
+    right: 0;
+    top: 2.2rem;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+    min-width: 300px;
+    z-index: 100;
+    padding: 0.7rem 0 0.3rem 0;
+}
+.notif-list {
+    max-height: 260px;
+    overflow-y: auto;
+}
+.notif-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    color: #333;
     font-size: 1rem;
-    color: #6c757d;
-    flex-grow: 1; /* Makes the p tag take up available space */
-    margin-bottom: 1.5rem;
+    background: #fff;
+    transition: background 0.2s;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
 }
-
-.dash-btn {
-    display: block;
+.notif-item:last-child {
+    border-bottom: none;
+}
+.notif-item.unread {
+    background: #eaf4fb;
+    font-weight: 500;
+}
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+.dash-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+    border: 1px solid #e9ecef;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: box-shadow 0.3s, transform 0.3s;
+    cursor: pointer;
+    min-width: 250px;
+    max-width: 300px;
+    flex: 1 1 250px;
+}
+.dash-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.13);
+    transform: translateY(-6px);
+}
+.dash-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #007bff;
+}
+.dash-card h3 {
+    font-size: 1.3rem;
+    color: #0056b3;
+    margin-bottom: 0.7rem;
+}
+.dash-card p {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
     text-align: center;
+}
+.dash-btn {
     background-color: #007bff;
     color: #fff;
-    padding: 0.75rem;
+    padding: 0.7rem 1.5rem;
     border-radius: 5px;
     text-decoration: none;
     font-weight: 500;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
 }
 
-.dash-btn:hover {
+.dash-btn:hover:not(:disabled) {
     background-color: #0056b3;
+}
+
+.dash-btn:disabled {
+    background-color: #6c757d;
+    color: #fff;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.dash-btn:disabled:hover {
+    background-color: #6c757d;
+}
+.logout-btn {
+    background: none;
+    color: #d9534f;
+    font-weight: 500;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1.1rem;
+    margin: 0 0.2rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.logout-btn:hover {
+    background: #f8d7da;
+    color: #b52a1a;
+}
+@media (max-width: 900px) {
+    .dashboard-cards {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+    }
+    .welcome-banner {
+        padding: 1.2rem 1rem 1rem 1rem;
+    }
 }

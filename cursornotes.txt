@@ -1,0 +1,11 @@
+Backend:
+1. make this: when logged in, the login page and the account creation page would redirect to dashboard
+Homepage:
+1. Text below Staff Access missing
+2. Contact Us section needs updating (for all pages)
+3. Do the links work?
+4. It says "CareConnect 2024" below, not 2025
+5. Shorten "Your Health Dashboard" description.
+
+(For all pages) The header and footer needs updating (according to homepage)
+(For some pages including homepage) Add "Find Doctors" option in the top right corner

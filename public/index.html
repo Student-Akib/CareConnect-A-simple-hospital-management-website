@@ -1,93 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to CareConnect | Your Trusted Health Partner</title>
-
-    <link rel="stylesheet" href="css/style.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>CareConnect Hospital | Compassionate Care, Right When You Need It</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
 </head>
-
 <body>
-
+    <!-- Header Navigation -->
     <header>
         <nav class="container">
-            <a href="/" class="logo">CareConnect 🏥</a>
+            <a href="/index.html" class="logo">CareConnect <span aria-label="stethoscope" role="img" style="color:#007bff;">🩺</span></a>
             <ul class="nav-links">
-                <li><a href="/doctors.html">Find a Doctor</a></li>
                 <li><a href="/branches.html">Branches</a></li>
-                <li><a href="/appointments.html">Appointments</a></li>
-                <li><a href="/login.html" class="login-btn">Login / Dashboard</a></li>
+                <li><a href="/login.html" class="login-btn">Login</a></li>
             </ul>
-            <button class="hamburger">
+            <div class="hamburger" aria-label="Open navigation menu" tabindex="0">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
-            </button>
+            </div>
         </nav>
     </header>
 
-    <main>
-        <section class="hero">
-            <div class="hero-content container">
-                <h1>Compassionate Care, Right When You Need It.</h1>
-                <p>At CareConnect, we are dedicated to providing top-quality healthcare with a personal touch. Our expert team is here to support you and your family's health and wellness journey.</p>
-                <a href="/appointments.html" class="cta-button">Book an Appointment</a>
-            </div>
-        </section>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Compassionate Care, Right When You Need It.</h1>
+            <p>At CareConnect, we are dedicated to providing top-quality healthcare with a personal touch. Our expert team is here to support you and your family's health and wellness journey.</p>
+            <a href="/login.html" class="cta-button" id="hero-cta">Book an Appointment</a>
+        </div>
+    </section>
 
-        <section class="features container">
-            <h2>Your Health, Our Priority</h2>
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
             <div class="feature-cards">
+                <!-- Card 1: Visit Our Branches -->
                 <div class="card">
-                    <img src="images/doctor-icon.png" alt="Doctor Icon" class="card-icon">
-                    <h3>Find the Right Doctor</h3>
-                    <p>Browse our extensive network of specialists and primary care physicians to find the perfect match for your needs.</p>
-                    <a href="/doctors.html">Search Doctors</a>
-                </div>
-                <div class="card">
-                    <img src="images/branches-icon.png" alt="Branches Icon" class="card-icon">
+                    <img src="/images/branches-icon.png" alt="Branches Icon" class="card-icon">
                     <h3>Visit Our Branches</h3>
                     <p>With multiple locations, high-quality care is always within your reach. Find a CareConnect branch near you.</p>
                     <a href="/branches.html">View Locations</a>
                 </div>
+                <!-- Card 2: Your Health Dashboard -->
                 <div class="card">
-                    <img src="images/patient-icon.png" alt="Patient Account Icon" class="card-icon">
-                    <h3>Manage Your Health</h3>
-                    <p>Create an account to manage appointments, view prescriptions, and access your health records securely online.</p>
-                    <a href="/register.html">Create Account</a>
+                    <img src="/images/patient-icon.png" alt="Patient Icon" class="card-icon">
+                    <h3>Your Health Dashboard</h3>
+                    <p>Access your personal health portal to book new appointments, review past visits, check prescriptions, and keep track of your medical history - all in one convenient place.</p>
+                    <a href="/login.html" id="dashboard-link">Go to Dashboard</a>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
 
+    <!-- Footer -->
     <footer>
-        <div class="footer-container container">
+        <div class="container footer-container">
             <div class="footer-about">
                 <h4>About CareConnect</h4>
-                <p>Providing exceptional healthcare services since 2024. Your health and well-being are at the heart of everything we do.</p>
-            </div>
-            <div class="footer-staff">
-                <h4>For Internal Staff</h4>
-                <p>Authorized personnel can access the internal dashboard here.</p>
-                <a href="/internal/login.html">Receptionist & Staff Login</a>
+                <p>CareConnect Hospital is committed to delivering compassionate, high-quality healthcare to our community. Our team of dedicated professionals is here to support you and your family at every stage of your health journey.</p>
             </div>
             <div class="footer-contact">
                 <h4>Contact Us</h4>
-                <p>Email: contact@careconnect.hospital</p>
-                <p>Phone: +880 13007 00900</p>
+                <p>Email: info@careconnect.com</p>
+                <p>Phone: (123) 456-7890</p>
+                <p>123 Wellness Ave, Healthy City, 12345</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 CareConnect. All Rights Reserved.</p>
+            &copy; 2024 CareConnect Hospital. All rights reserved.
         </div>
     </footer>
 
-    <script src="js/script.js"></script>
+    <script type="module" src="/js/homepage.js"></script>
 </body>
 </html>
