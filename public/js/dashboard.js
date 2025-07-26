@@ -21,7 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch user data');
+        if (!res.ok) {
+            if (res.status === 401) {
+                // Token expired or invalid
+                localStorage.removeItem('token');
+                window.location.href = '/login.html';
+                throw new Error('Authentication failed');
+            }
+            throw new Error(`HTTP ${res.status}: Failed to fetch user data`);
+        }
         return res.json();
     })
     .then(data => {
@@ -29,7 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
             welcomeBanner.textContent = `Hello, ${data.patient.name}!`;
         }
     })
-    .catch(() => {
+    .catch((error) => {
+        console.error('Error fetching user data:', error);
         if (welcomeBanner) welcomeBanner.textContent = 'Hello, Patient!';
     });
 
@@ -38,7 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch notifications');
+        if (!res.ok) {
+            if (res.status === 401) {
+                // Token expired or invalid
+                localStorage.removeItem('token');
+                window.location.href = '/login.html';
+                throw new Error('Authentication failed');
+            }
+            throw new Error(`HTTP ${res.status}: Failed to fetch notifications`);
+        }
         return res.json();
     })
     .then(data => {
@@ -51,7 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 : '<div class="notif-item">No notifications</div>';
         }
     })
-    .catch(() => {
+    .catch((error) => {
+        console.error('Error fetching notifications:', error);
         if (notifList) notifList.innerHTML = '<div class="notif-item">Could not load notifications</div>';
     });
 
