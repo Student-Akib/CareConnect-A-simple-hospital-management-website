@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const branchesContainer = document.getElementById('branches-container');
     async function fetchAndDisplayBranches() {
         try {
-            const response = await fetch(buildApiUrl('/api/branches'));
+            const response = await fetch(buildApiUrl('/branches'));
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const branches = await response.json();
             branchesContainer.innerHTML = '';

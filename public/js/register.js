@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const existingToken = localStorage.getItem('token');
     if (existingToken) {
         // Verify token is still valid by making a test request
-        fetch(buildApiUrl('/api/users/me'), {
+        fetch(buildApiUrl('/users/me'), {
             headers: { 'Authorization': `Bearer ${existingToken}` }
         })
         .then(res => {
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = Object.fromEntries(formData.entries());
         
         try {
-            const response = await fetch(buildApiUrl('/api/auth/register'), {
+            const response = await fetch(buildApiUrl('/auth/register'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)

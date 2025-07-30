@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fetch user info for welcome banner
-    fetch(buildApiUrl('/api/users/me'), {
+            fetch(buildApiUrl('/users/me'), {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Fetch notifications from backend
-    fetch(buildApiUrl('/api/users/notifications'), {
+            fetch(buildApiUrl('/users/notifications'), {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => {

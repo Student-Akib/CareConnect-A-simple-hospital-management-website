@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load profile data
     async function loadProfile() {
         try {
-            const response = await fetch(buildApiUrl('/api/users/me'), {
+            const response = await fetch(buildApiUrl('/users/me'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             setLoading(true);
             
-            const response = await fetch(buildApiUrl('/api/users/me'), {
+            const response = await fetch(buildApiUrl('/users/me'), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             setLoading(true);
             
-            const response = await fetch(buildApiUrl('/api/users/me'), {
+            const response = await fetch(buildApiUrl('/users/me'), {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load notifications
     async function loadNotifications() {
         try {
-            const response = await fetch(buildApiUrl('/api/users/notifications'), {
+            const response = await fetch(buildApiUrl('/users/notifications'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

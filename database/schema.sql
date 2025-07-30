@@ -22,11 +22,11 @@ SET row_security = off;
 --
 
 CREATE TYPE public.appointment_status AS ENUM (
-    'scheduled',
-    'confirmed',
-    'visited',
-    'completed',
-    'cancelled'
+    'scheduled', -- scheduled means requested but not yet confirmed by the receptionist
+    'confirmed', -- confirmed by receptionist but not yet visited
+    'visited', -- patient has visited the hospital but has not done the whole thing yet, not confirmed if he'd cancell it or complete it 
+    'completed', -- it's complete and he paid it
+    'cancelled' -- aborted appointment either before visit or after
 );
 
 

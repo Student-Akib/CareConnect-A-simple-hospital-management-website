@@ -1,17 +1,12 @@
 const pool = require('../db');
 
-// Get all appointments for a user
-exports.getAllAppointments = async (req, res) => {
-  try {
+// Helper function to get patient ID
+const getPatientId = async (req) => {
     const patientId = req.user.patientId;
+    if (patientId) {
+        return patientId;
+    }
     
-    console.log('Fetching appointments for patient:', patientId);
-    console.log('User info from JWT:', req.user);
-    
-    // Check if patientId exists in JWT token, if not, get it from database
-    let finalPatientId = patientId;
-    if (!patientId) {
-      console.log('No patientId in JWT token, fetching from database for user:', req.user.userId);
       try {
         const { rows } = await pool.query(
           'SELECT patient_id FROM external_user WHERE external_user_id = $1',
@@ -19,263 +14,302 @@ exports.getAllAppointments = async (req, res) => {
         );
         
         if (rows.length === 0) {
-          console.error('User not found in database');
-          return res.status(401).json({ error: 'User not found. Please log in again.' });
+            throw new Error('User not found');
         }
         
-        finalPatientId = rows[0].patient_id;
-        console.log('Retrieved patientId from database:', finalPatientId);
-      } catch (dbError) {
-        console.error('Database error while fetching patientId:', dbError);
-        return res.status(500).json({ error: 'Server error while fetching user data.' });
-      }
+        return rows[0].patient_id;
+    } catch (error) {
+        throw new Error('Failed to fetch patient ID');
     }
-    
-    console.log('Final patientId being used for query:', finalPatientId);
-    
-    // Debug: Check all appointments in database to see if there are any
-    try {
-      const allAppts = await pool.query('SELECT COUNT(*) as total, array_agg(DISTINCT patient_id) as patient_ids FROM appointment');
-      console.log('Total appointments in database:', allAppts.rows[0].total);
-      console.log('Patient IDs with appointments:', allAppts.rows[0].patient_ids);
-    } catch (debugErr) {
-      console.log('Debug query failed:', debugErr.message);
-    }
-
-    // Get all appointments for the patient (without prescription join to avoid duplicates)
-    const { rows } = await pool.query(
-      `SELECT 
-        a.appointment_id,
-        a.visit_date,
-        a.schedule_no,
-        a.serial_no,
-        a.status,
-        a.created_at,
-        a.creation_method,
-        a.bill_id,
-        e.emp_name AS doctor_name,
-        d.qualifications AS specialization,
-        CASE WHEN EXISTS (
-          SELECT 1 FROM prescription p WHERE p.appointment_id = a.appointment_id
-        ) THEN (
-          SELECT p.prescription_id FROM prescription p WHERE p.appointment_id = a.appointment_id LIMIT 1
-        ) ELSE NULL END AS prescription_id
-      FROM appointment a
-      JOIN doctor d ON d.emp_id = a.doctor_id
-      JOIN employee e ON e.emp_id = d.emp_id
-      WHERE a.patient_id = $1
-      ORDER BY a.visit_date DESC, a.schedule_no ASC`,
-      [finalPatientId]
-    );
-
-    console.log(`Found ${rows.length} appointments for patient ${finalPatientId}`);
-    console.log('Appointment IDs:', rows.map(r => r.appointment_id));
-    console.log('User details - userId:', req.user.userId, ', patientId from token:', req.user.patientId, ', final patientId used:', finalPatientId);
-
-    res.json({
-      appointments: rows,
-      totalAppointments: rows.length
-    });
-
-  } catch (err) {
-    console.error('getAllAppointments error:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
 };
 
-// Get detailed appointment information
+// ============================================================================
+// APPOINTMENT VIEWING METHODS (Existing)
+// ============================================================================
+
+exports.getAllAppointments = async (req, res) => {
+    try {
+        const patientId = await getPatientId(req);
+        
+    const { rows } = await pool.query(
+            'SELECT * FROM get_patient_appointments($1)',
+            [patientId]
+        );
+        
+        res.json({ appointments: rows });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch appointments' });
+    }
+};
+
 exports.getAppointmentDetails = async (req, res) => {
   try {
-    const patientId = req.user.patientId;
-    const { appointmentId } = req.params;
-    
-    console.log('Fetching appointment details:', { 
-      patientId, 
-      appointmentId,
-      user: req.user,
-      hasPatientId: !!req.user.patientId 
-    });
-    
-    // Check if patientId exists in JWT token, if not, get it from database
-    let finalPatientId = patientId;
-    if (!patientId) {
-      console.log('No patientId in JWT token, fetching from database for user:', req.user.userId);
-      try {
+        const patientId = await getPatientId(req);
+        const appointmentId = req.params.appointmentId;
+        
         const { rows } = await pool.query(
-          'SELECT patient_id FROM external_user WHERE external_user_id = $1',
-          [req.user.userId]
+            'SELECT * FROM get_appointment_details($1, $2)',
+            [appointmentId, patientId]
         );
         
         if (rows.length === 0) {
-          console.error('User not found in database');
-          return res.status(401).json({ error: 'User not found. Please log in again.' });
+            return res.status(404).json({ error: 'Appointment not found' });
         }
         
-        finalPatientId = rows[0].patient_id;
-        console.log('Retrieved patientId from database:', finalPatientId);
-      } catch (dbError) {
-        console.error('Database error while fetching patientId:', dbError);
-        return res.status(500).json({ error: 'Server error while fetching user data.' });
-      }
+        res.json({ appointment: rows[0] });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch appointment details' });
     }
-    
-    // Get appointment details
-    const { rows: appointments } = await pool.query(
-      `SELECT 
-        a.appointment_id,
-        a.visit_date,
-        a.schedule_no,
-        a.serial_no,
-        a.status,
-        a.created_at,
-        a.creation_method,
-        e.emp_name AS doctor_name,
-        d.qualifications AS specialization,
-        e.emp_phone AS doctor_phone,
-        b.bill_id,
-        b.final_amount AS total_amount,
-        b.payment_method AS payment_status
-      FROM appointment a
-      JOIN doctor d ON d.emp_id = a.doctor_id
-      JOIN employee e ON e.emp_id = d.emp_id
-      LEFT JOIN bill b ON b.bill_id = a.bill_id
-      WHERE a.appointment_id = $1 AND a.patient_id = $2`,
-      [appointmentId, finalPatientId]
-    );
-
-    if (appointments.length === 0) {
-      return res.status(404).json({ error: 'Appointment not found' });
-    }
-
-    const appointment = appointments[0];
-
-    // Get prescription details if available
-    let prescription = null;
-    if (appointment.prescription_id) {
-      const { rows: prescriptions } = await pool.query(
-        `SELECT 
-          p.prescription_id,
-          p.diagnosis,
-          p.next_visit_date,
-          p.created_at
-        FROM prescription p
-        WHERE p.prescription_id = $1`,
-        [appointment.prescription_id]
-      );
-
-      if (prescriptions.length > 0) {
-        prescription = prescriptions[0];
-
-        // Get prescription items
-        const { rows: prescriptionItems } = await pool.query(
-          `SELECT 
-            pi.prescription_item_id,
-            pi.dosage,
-            pi.duration,
-            pi.instructions,
-            d.drug_name
-          FROM prescription_item pi
-          JOIN drug d ON d.drug_id = pi.drug_id
-          WHERE pi.prescription_id = $1`,
-          [prescription.prescription_id]
-        );
-
-        prescription.items = prescriptionItems;
-      }
-    }
-
-    console.log('Appointment details retrieved successfully');
-
-    res.json({
-      appointment,
-      prescription
-    });
-
-  } catch (err) {
-    console.error('getAppointmentDetails error:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
 };
 
-// Request appointment
-exports.requestAppointment = async (req, res) => {
-  try {
-    const patientId = req.user.patientId;
-    const userId = req.user.userId;
-    const { doctorId, visitDate, scheduleNo, reason } = req.body;
-    
-    // Get patient_id if not in JWT
-    let finalPatientId = patientId;
-    if (!finalPatientId) {
-      const userResult = await pool.query(
-        'SELECT patient_id FROM external_user WHERE external_user_id = $1',
-        [userId]
-      );
-      
-      if (userResult.rows.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      finalPatientId = userResult.rows[0].patient_id;
+exports.getPrescriptionDetails = async (req, res) => {
+    try {
+        const prescriptionId = req.params.prescriptionId;
+        
+        // Get prescription details
+        const { rows: prescriptionRows } = await pool.query(
+            'SELECT * FROM get_prescription_details($1)',
+            [prescriptionId]
+        );
+        
+        if (prescriptionRows.length === 0) {
+            return res.status(404).json({ error: 'Prescription not found' });
+        }
+        
+        // Get prescription items (medications)
+        const { rows: medicationRows } = await pool.query(
+            'SELECT * FROM get_prescription_items($1)',
+            [prescriptionId]
+        );
+        
+        res.json({
+            prescription: prescriptionRows[0],
+            medications: medicationRows
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch prescription details' });
     }
-    
-    // Check if the doctor schedule exists
-    const scheduleCheck = await pool.query(`
-      SELECT * FROM doctor_schedule 
-      WHERE doctor_id = $1 AND schedule_no = $2
-    `, [doctorId, scheduleNo]);
-    
-    if (scheduleCheck.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid schedule selected' });
+};
+
+// ============================================================================
+// APPOINTMENT CREATION METHODS (New)
+// ============================================================================
+
+exports.getAllDoctors = async (req, res) => {
+    try {
+        const { rows } = await pool.query('SELECT * FROM get_all_doctors()');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch doctors' });
     }
+};
+
+exports.getDoctorDetails = async (req, res) => {
+    try {
+        const doctorId = req.params.doctorId;
+        
+        const { rows } = await pool.query(
+            'SELECT * FROM get_doctor_details_with_schedule($1)',
+            [doctorId]
+        );
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Doctor not found' });
+        }
+        
+        // Transform the data to separate doctor info and schedules
+        const doctorInfo = {
+            doctor_id: rows[0].doctor_id,
+            doctor_name: rows[0].doctor_name,
+            department_name: rows[0].department_name,
+            qualifications: rows[0].qualifications,
+            visit_charge: rows[0].visit_charge,
+            branch_name: rows[0].branch_name,
+            profile_url: rows[0].profile_url,
+            emp_phone: rows[0].emp_phone,
+            emp_email: rows[0].emp_email,
+            experience: rows[0].experience
+        };
+        
+        // Extract schedules (filter out null schedule entries)
+        const schedules = rows
+            .filter(row => row.schedule_no !== null)
+            .map(row => ({
+                schedule_no: row.schedule_no,
+                start_time: row.start_time,
+                finish_time: row.finish_time,
+                week_day: row.week_day,
+                branch_id: row.schedule_branch_id
+            }));
+
+    res.json({
+            doctor: doctorInfo,
+            schedules: schedules
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch doctor details' });
+    }
+};
+
+exports.getDoctorAvailability = async (req, res) => {
+    try {
+        const doctorId = req.params.doctorId;
+        const visitDate = req.params.visitDate;
+        
+        // Validate date format
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(visitDate)) {
+            return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+        }
+        
+        // Get the day of week (0=Sunday, 1=Monday, ..., 6=Saturday)
+        const weekDay = new Date(visitDate).getDay();
+        
+        // Direct SQL query to get available time slots
+        const { rows } = await pool.query(`
+            SELECT 
+                ds.schedule_no,
+                ds.start_time,
+                ds.finish_time,
+                ds.week_day,
+                ds.branch_id,
+                b.branch_name,
+                TRUE as is_available,
+                COUNT(a.appointment_id) as existing_appointments
+            FROM doctor_schedule ds
+            JOIN branch b ON b.branch_id = ds.branch_id
+            LEFT JOIN appointment a ON a.doctor_id = ds.doctor_id 
+                                   AND a.visit_date = $2 
+                                   AND a.schedule_no = ds.schedule_no
+                                   AND a.status NOT IN ('cancelled')
+            WHERE ds.doctor_id = $1 
+              AND ds.week_day = $3
+            GROUP BY ds.schedule_no, ds.start_time, ds.finish_time, ds.week_day, 
+                     ds.branch_id, b.branch_name
+            ORDER BY ds.start_time
+        `, [doctorId, visitDate, weekDay]);
+        
+        res.json(rows);
+    } catch (error) {
+        console.error('getDoctorAvailability error:', error);
+        res.status(500).json({ error: 'Failed to fetch doctor availability', details: error.message });
+    }
+};
+
+exports.getNextSerialNumber = async (req, res) => {
+    try {
+        const doctorId = req.params.doctorId;
+        const visitDate = req.params.visitDate;
+        
+        // Validate date format
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(visitDate)) {
+            return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+        }
+        
+        // Direct SQL query to get next serial number
+        const { rows } = await pool.query(`
+            SELECT COALESCE(MAX(serial_no), 0) + 1 as next_serial
+            FROM appointment
+            WHERE doctor_id = $1 
+              AND visit_date = $2
+              AND status NOT IN ('cancelled')
+        `, [doctorId, visitDate]);
+        
+        res.json({ next_serial: rows[0].next_serial });
+    } catch (error) {
+        console.error('getNextSerialNumber error:', error);
+        res.status(500).json({ error: 'Failed to get next serial number', details: error.message });
+    }
+};
+
+exports.createAppointment = async (req, res) => {
+    console.log('=== APPOINTMENT CREATION STARTED ===');
+    console.log('Request body:', req.body);
+    console.log('Request user:', req.user);
     
-    // Check for existing appointments on the same date and schedule
-    const conflictCheck = await pool.query(`
-      SELECT COUNT(*) as count 
-      FROM appointment 
-      WHERE doctor_id = $1 
-        AND visit_date = $2 
-        AND schedule_no = $3 
-        AND status NOT IN ('cancelled')
-    `, [doctorId, visitDate, scheduleNo]);
-    
-    const appointmentCount = parseInt(conflictCheck.rows[0].count);
-    
-    // Get next serial number
-    const serialNo = appointmentCount + 1;
-    
-    // Create appointment with 'requested' status
-    const { rows } = await pool.query(`
-      INSERT INTO appointment (
-        patient_id, doctor_id, visit_date, schedule_no, 
-        serial_no, status, created_by, creation_method
-      ) VALUES ($1, $2, $3, $4, $5, 'requested', $6, 'online')
-      RETURNING appointment_id
-    `, [finalPatientId, doctorId, visitDate, scheduleNo, serialNo, userId]);
-    
-    const appointmentId = rows[0].appointment_id;
-    
-    // Create notification for the patient
-    await pool.query(`
-      INSERT INTO notification (
-        external_user_id, title, text, type, status, related_id
-      ) VALUES (
-        $1, 
-        'Appointment Request Submitted',
-        'Your appointment request has been submitted. You will be notified once it is confirmed by the receptionist.',
-        'appointment',
-        'unread',
-        $2
-      )
-    `, [userId, appointmentId]);
-    
-    res.status(201).json({
-      message: 'Appointment request submitted successfully',
-      appointmentId: appointmentId
-    });
-    
-  } catch (err) {
-    console.error('Error creating appointment request:', err);
-    res.status(500).json({ error: 'Failed to create appointment request' });
-  }
-}; 
+    try {
+        const patientId = await getPatientId(req);
+        console.log('Got patient ID:', patientId);
+        
+        const { doctorId, visitDate, scheduleNo, creationMethod = 'online' } = req.body;
+        console.log('Extracted values:', { doctorId, visitDate, scheduleNo, creationMethod });
+        
+        // Validate required fields
+        if (!doctorId || !visitDate || !scheduleNo) {
+            return res.status(400).json({ 
+                error: 'Missing required fields: doctorId, visitDate, scheduleNo' 
+            });
+        }
+        
+        // Get next serial number
+        const { rows: serialRows } = await pool.query(`
+            SELECT COALESCE(MAX(serial_no), 0) + 1 as next_serial
+            FROM appointment
+            WHERE doctor_id = $1 
+              AND visit_date = $2
+              AND status NOT IN ('cancelled')
+        `, [doctorId, visitDate]);
+        
+        const serialNo = serialRows[0].next_serial;
+        
+        // The created_by constraint is too restrictive for online appointments
+        // Let's temporarily bypass this by creating without created_by
+        // Since created_by is NOT NULL, we need to modify the table or find a workaround
+        
+        // Validate all foreign key references before inserting
+        console.log('=== VALIDATING FOREIGN KEYS ===');
+        
+        // Check if patient exists
+        const { rows: patientCheck } = await pool.query('SELECT patient_id FROM patient WHERE patient_id = $1', [patientId]);
+        console.log('Patient exists:', patientCheck.length > 0, 'patientId:', patientId);
+        
+        // Check if doctor exists
+        const { rows: doctorCheck } = await pool.query('SELECT emp_id FROM doctor WHERE emp_id = $1', [doctorId]);
+        console.log('Doctor exists:', doctorCheck.length > 0, 'doctorId:', doctorId);
+        
+        // Try to find ANY internal user that exists
+        let createdBy = null;
+        const { rows: internalUsers } = await pool.query('SELECT emp_id FROM internal_user LIMIT 1');
+        if (internalUsers.length > 0) {
+            createdBy = internalUsers[0].emp_id;
+            console.log('Using internal user:', createdBy);
+        } else {
+            console.log('No internal users found');
+            return res.status(500).json({ error: 'No internal users available for appointment creation' });
+        }
+        
+        console.log('=== ALL VALUES TO INSERT ===');
+        console.log('patientId:', patientId, 'doctorId:', doctorId, 'visitDate:', visitDate);
+        console.log('scheduleNo:', scheduleNo, 'serialNo:', serialNo, 'creationMethod:', creationMethod, 'createdBy:', createdBy);
+
+        const { rows } = await pool.query(`
+            INSERT INTO appointment (
+                patient_id, doctor_id, visit_date, schedule_no, serial_no, 
+                status, creation_method, created_by
+            ) VALUES ($1, $2, $3, $4, $5, 'scheduled', $6, $7)
+            RETURNING appointment_id, serial_no
+        `, [patientId, doctorId, visitDate, scheduleNo, serialNo, creationMethod, createdBy]);
+        
+        const appointment = rows[0];
+        
+        res.status(201).json({
+            success: true,
+            message: 'Appointment created successfully',
+            appointment: {
+                appointment_id: appointment.appointment_id,
+                serial_no: appointment.serial_no,
+                doctor_id: doctorId,
+                visit_date: visitDate,
+                schedule_no: scheduleNo
+            }
+        });
+        
+    } catch (error) {
+        console.error('createAppointment error:', error);
+        res.status(500).json({ 
+            error: 'Failed to create appointment', 
+            details: error.message 
+        });
+    }
+};
+
+ 

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Appointment | CareConnect</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container dashboard-nav">
+            <a href="/index.html" class="logo">CareConnect <span aria-label="stethoscope" role="img" style="color:#007bff;">🩺</span></a>
+            <div class="header-actions">
+                <div class="notif-center" id="notif-center" aria-label="Notifications" tabindex="0">
+                    <span class="notif-bell" aria-label="Notifications">🔔</span>
+                    <span class="notif-badge" id="notif-badge">0</span>
+                    <div class="notif-dropdown" id="notif-dropdown" style="display:none">
+                        <div class="notif-list" id="notif-list"></div>
+                    </div>
+                </div>
+                <button id="logout-btn" class="logout-btn">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="appointment-creation-main container">
+        <!-- Page Header -->
+        <section class="page-header">
+            <h1>Create New Appointment</h1>
+            <p>Book an appointment with our experienced doctors</p>
+        </section>
+
+        <!-- Progress Steps -->
+        <section class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Select Doctor</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Choose Date & Time</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Confirm</div>
+            </div>
+        </section>
+
+        <!-- Step Content -->
+        <section class="step-content">
+            <!-- Step 1: Doctor Selection -->
+            <div class="step-panel active" id="step-1">
+                <div class="step-header">
+                    <h2>Select a Doctor</h2>
+                    <p>Choose from our experienced medical professionals</p>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="search-filter-section">
+                    <div class="search-box">
+                        <input type="text" id="doctor-search" placeholder="Search doctors by name or department..." aria-label="Search doctors">
+                        <button type="button" id="search-btn" aria-label="Search">🔍</button>
+                    </div>
+                    <div class="filter-options">
+                        <select id="department-filter" aria-label="Filter by department">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state" id="doctors-loading" style="display:none">
+                    <div class="loading-spinner"></div>
+                    <p>Loading doctors...</p>
+                </div>
+
+                <!-- Error State -->
+                <div class="error-state" id="doctors-error" style="display:none">
+                    <p>Failed to load doctors. Please try again.</p>
+                    <button type="button" class="retry-btn" id="retry-doctors-btn">Retry</button>
+                </div>
+
+                <!-- Doctors Grid -->
+                <div class="doctors-grid" id="doctors-grid">
+                    <!-- Doctor cards will be populated here -->
+                </div>
+            </div>
+
+            <!-- Step 2: Date & Time Selection -->
+            <div class="step-panel" id="step-2">
+                <div class="step-header">
+                    <h2>Choose Date & Time</h2>
+                    <p>Select your preferred appointment date and time slot</p>
+                </div>
+
+                <!-- Selected Doctor Info -->
+                <div class="selected-doctor-info" id="selected-doctor-info">
+                    <!-- Selected doctor details will be shown here -->
+                </div>
+
+                <!-- Date Selection -->
+                <div class="date-selection">
+                    <label for="appointment-date">Select Date:</label>
+                    <input type="date" id="appointment-date" min="" required>
+                    <p class="date-note">Please select a future date</p>
+                </div>
+
+                <!-- Loading State for Time Slots -->
+                <div class="loading-state" id="slots-loading" style="display:none">
+                    <div class="loading-spinner"></div>
+                    <p>Loading available time slots...</p>
+                </div>
+
+                <!-- Error State for Time Slots -->
+                <div class="error-state" id="slots-error" style="display:none">
+                    <p>Failed to load time slots. Please try again.</p>
+                    <button type="button" class="retry-btn" id="retry-slots-btn">Retry</button>
+                </div>
+
+                <!-- Time Slots Grid -->
+                <div class="time-slots-grid" id="time-slots-grid">
+                    <!-- Time slot cards will be populated here -->
+                </div>
+
+                <!-- No Slots Available -->
+                <div class="no-slots-state" id="no-slots-state" style="display:none">
+                    <p>No time slots available for the selected date.</p>
+                    <p>Please try a different date.</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Confirmation -->
+            <div class="step-panel" id="step-3">
+                <div class="step-header">
+                    <h2>Confirm Appointment</h2>
+                    <p>Review your appointment details before confirming</p>
+                </div>
+
+                <!-- Appointment Summary -->
+                <div class="appointment-summary" id="appointment-summary">
+                    <!-- Summary details will be populated here -->
+                </div>
+
+                <!-- Confirmation Actions -->
+                <div class="confirmation-actions">
+                    <button type="button" class="btn-secondary" id="back-to-step2-btn">Back</button>
+                    <button type="button" class="btn-primary" id="confirm-appointment-btn">
+                        <span class="btn-text">Confirm Appointment</span>
+                        <span class="btn-loading" style="display:none">Creating...</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Success -->
+            <div class="step-panel" id="step-4">
+                <div class="success-state">
+                    <div class="success-icon">✅</div>
+                    <h2>Appointment Created Successfully!</h2>
+                    <p>Your appointment has been scheduled. You will receive a confirmation shortly.</p>
+                    
+                    <div class="appointment-details" id="success-appointment-details">
+                        <!-- Success details will be populated here -->
+                    </div>
+
+                    <div class="success-actions">
+                        <button type="button" class="btn-secondary" id="view-appointments-btn">
+                            View My Appointments
+                        </button>
+                        <button type="button" class="btn-primary" id="create-another-btn">
+                            Create Another Appointment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Buttons -->
+        <section class="step-navigation">
+            <button type="button" class="btn-secondary" id="back-btn" style="display:none">
+                ← Back
+            </button>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-about">
+                <h4>About CareConnect</h4>
+                <p>CareConnect Hospital is committed to delivering compassionate, high-quality healthcare to our community. Our team of dedicated professionals is here to support you and your family at every stage of your health journey.</p>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact Us</h4>
+                <p>Email: info@careconnect.com</p>
+                <p>Phone: (123) 456-7890</p>
+                <p>123 Wellness Ave, Healthy City, 12345</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 CareConnect Hospital. All rights reserved.
+        </div>
+    </footer>
+
+    <script type="module" src="/js/create-appointment.js"></script>
+</body>
+</html> 

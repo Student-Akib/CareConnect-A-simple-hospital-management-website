@@ -8,10 +8,18 @@ const appointmentsContainer = document.getElementById('appointments-container');
 const appointmentsList = document.getElementById('appointments-list');
 const noAppointments = document.getElementById('no-appointments');
 const retryBtn = document.getElementById('retry-btn');
+const filterTabs = document.querySelectorAll('.filter-tab');
+
+// Modal elements
 const appointmentModal = document.getElementById('appointment-modal');
-const modalTitle = document.getElementById('modal-title');
-const modalBody = document.getElementById('modal-body');
-const closeModal = document.getElementById('close-modal');
+const appointmentModalTitle = document.getElementById('appointment-modal-title');
+const appointmentModalBody = document.getElementById('appointment-modal-body');
+const closeAppointmentModal = document.getElementById('close-appointment-modal');
+
+const prescriptionModal = document.getElementById('prescription-modal');
+const prescriptionModalTitle = document.getElementById('prescription-modal-title');
+const prescriptionModalBody = document.getElementById('prescription-modal-body');
+const closePrescriptionModal = document.getElementById('close-prescription-modal');
 
 // Get token from localStorage
 const token = localStorage.getItem('token');
@@ -21,35 +29,65 @@ if (!token) {
     window.location.href = '/login.html';
 }
 
+// Global variables
+let allAppointments = [];
+let currentFilter = 'all';
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     setupNotifications();
     loadAppointments();
-    
-    // Event listeners
+    setupEventListeners();
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    // Filter tabs
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const filter = tab.dataset.filter;
+            setActiveFilter(filter);
+            filterAppointments(filter);
+        });
+    });
+
+    // Retry button
     retryBtn.addEventListener('click', loadAppointments);
-    closeModal.addEventListener('click', hideModal);
-    
-    // Close modal when clicking outside
+
+    // Modal close buttons
+    closeAppointmentModal.addEventListener('click', hideAppointmentModal);
+    closePrescriptionModal.addEventListener('click', hidePrescriptionModal);
+
+    // Close modals when clicking outside
     appointmentModal.addEventListener('click', function(e) {
         if (e.target === appointmentModal) {
-            hideModal();
+            hideAppointmentModal();
         }
     });
-    
-    // Close modal with Escape key
+
+    prescriptionModal.addEventListener('click', function(e) {
+        if (e.target === prescriptionModal) {
+            hidePrescriptionModal();
+        }
+    });
+
+    // Close modals with Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && appointmentModal.style.display === 'block') {
-            hideModal();
+        if (e.key === 'Escape') {
+            if (appointmentModal.style.display === 'block') {
+                hideAppointmentModal();
+            } else if (prescriptionModal.style.display === 'block') {
+                hidePrescriptionModal();
+            }
         }
     });
-    
+
     // Logout functionality
     document.getElementById('logout-btn').addEventListener('click', function() {
         localStorage.removeItem('token');
         window.location.href = '/login.html';
     });
-});
+}
 
 // Notification functions
 function setupNotifications() {
@@ -59,7 +97,7 @@ function setupNotifications() {
     const notifList = document.getElementById('notif-list');
 
     // Fetch notifications from backend
-    fetch(buildApiUrl('/api/users/notifications'), {
+    fetch(buildApiUrl('/users/notifications'), {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => {
@@ -103,29 +141,12 @@ function setupNotifications() {
     }
 }
 
-function showNotification(message, type = 'info') {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    
-    // Add to page
-    document.body.appendChild(notification);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-        }
-    }, 3000);
-}
-
 // Load appointments from API
 async function loadAppointments() {
     try {
         showLoading();
         
-        const response = await fetch(buildApiUrl('/api/appointments'), {
+        const response = await fetch(buildApiUrl('/appointments'), {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -141,11 +162,10 @@ async function loadAppointments() {
         }
 
         const data = await response.json();
-        console.log('Received appointments data:', data);
-        console.log('Number of appointments:', data.appointments?.length);
+        allAppointments = data.appointments || [];
         
-        if (data.appointments && data.appointments.length > 0) {
-            displayAppointments(data.appointments);
+        if (allAppointments.length > 0) {
+            filterAppointments(currentFilter);
         } else {
             showNoAppointments();
         }
@@ -156,23 +176,63 @@ async function loadAppointments() {
     }
 }
 
+// Set active filter tab
+function setActiveFilter(filter) {
+    filterTabs.forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.filter === filter) {
+            tab.classList.add('active');
+        }
+    });
+    currentFilter = filter;
+}
+
+// Filter appointments based on selected filter
+function filterAppointments(filter) {
+    let filteredAppointments = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    switch (filter) {
+        case 'past':
+            filteredAppointments = allAppointments.filter(appointment => {
+                const visitDate = new Date(appointment.visit_date);
+                return visitDate < today;
+            });
+            break;
+        case 'upcoming':
+            filteredAppointments = allAppointments.filter(appointment => {
+                const visitDate = new Date(appointment.visit_date);
+                return visitDate >= today && 
+                       !['cancelled', 'completed'].includes(appointment.status);
+            });
+            break;
+        case 'with_prescriptions':
+            filteredAppointments = allAppointments.filter(appointment => 
+                appointment.prescription_id !== null
+            );
+            break;
+        default: // 'all'
+            filteredAppointments = allAppointments;
+            break;
+    }
+
+    if (filteredAppointments.length > 0) {
+        displayAppointments(filteredAppointments);
+    } else {
+        showNoAppointments();
+    }
+}
+
 // Display appointments in the list
 function displayAppointments(appointments) {
-    console.log('displayAppointments called with:', appointments.length, 'appointments');
-    console.log('Appointment details:', appointments.map(a => ({ id: a.appointment_id, doctor: a.doctor_name, date: a.visit_date })));
-    
-    // Sort appointments by visit date (most recent first)
-    appointments.sort((a, b) => new Date(b.visit_date) - new Date(a.visit_date));
-    
     appointmentsList.innerHTML = '';
     
-    appointments.forEach((appointment, index) => {
-        console.log(`Creating card ${index + 1} for appointment ID:`, appointment.appointment_id);
+    appointments.forEach(appointment => {
         const appointmentCard = createAppointmentCard(appointment);
         appointmentsList.appendChild(appointmentCard);
     });
     
-    console.log('Total cards appended to list:', appointmentsList.children.length);
     showAppointmentsContainer();
 }
 
@@ -209,14 +269,26 @@ function createAppointmentCard(appointment) {
             <button class="btn btn-primary view-details-btn" data-appointment-id="${appointment.appointment_id}">
                 View Details
             </button>
+            ${appointment.prescription_id ? 
+                `<button class="btn btn-secondary view-prescription-btn" data-prescription-id="${appointment.prescription_id}">
+                    View Prescription
+                </button>` : ''
+            }
         </div>
     `;
     
-    // Add click event for view details
+    // Add click events
     const viewDetailsBtn = card.querySelector('.view-details-btn');
     viewDetailsBtn.addEventListener('click', () => {
         showAppointmentDetails(appointment.appointment_id);
     });
+    
+    if (appointment.prescription_id) {
+        const viewPrescriptionBtn = card.querySelector('.view-prescription-btn');
+        viewPrescriptionBtn.addEventListener('click', () => {
+            showPrescriptionDetails(appointment.prescription_id);
+        });
+    }
     
     return card;
 }
@@ -224,7 +296,7 @@ function createAppointmentCard(appointment) {
 // Show appointment details in modal
 async function showAppointmentDetails(appointmentId) {
     try {
-        const response = await fetch(buildApiUrl(`/api/appointments/${appointmentId}`), {
+        const response = await fetch(buildApiUrl(`/appointments/${appointmentId}`), {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -235,9 +307,7 @@ async function showAppointmentDetails(appointmentId) {
         }
 
         const data = await response.json();
-        const { appointment, prescription } = data;
-        
-        displayAppointmentModal(appointment, prescription);
+        displayAppointmentModal(data.appointment);
         
     } catch (error) {
         console.error('Error loading appointment details:', error);
@@ -245,11 +315,38 @@ async function showAppointmentDetails(appointmentId) {
     }
 }
 
+// Show prescription details in modal
+async function showPrescriptionDetails(prescriptionId) {
+    try {
+        const response = await fetch(buildApiUrl(`/appointments/prescription/${prescriptionId}`), {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Failed to fetch prescription details`);
+        }
+
+        const data = await response.json();
+        // Combine prescription details with medications
+        const prescriptionWithMedications = {
+            ...data.prescription,
+            medications: data.medications
+        };
+        displayPrescriptionModal(prescriptionWithMedications);
+        
+    } catch (error) {
+        console.error('Error loading prescription details:', error);
+        showNotification('Error loading prescription details', 'error');
+    }
+}
+
 // Display appointment details in modal
-function displayAppointmentModal(appointment, prescription) {
+function displayAppointmentModal(appointment) {
     const visitDate = new Date(appointment.visit_date);
     
-    modalTitle.textContent = `Appointment Details - ${visitDate.toLocaleDateString()}`;
+    appointmentModalTitle.textContent = `Appointment Details - ${visitDate.toLocaleDateString()}`;
     
     let modalContent = `
         <div class="appointment-details-modal">
@@ -303,49 +400,61 @@ function displayAppointmentModal(appointment, prescription) {
         `;
     }
     
-    // Add prescription information if available
-    if (prescription) {
-        modalContent += `
+    modalContent += `</div>`;
+    
+    appointmentModalBody.innerHTML = modalContent;
+    showAppointmentModal();
+}
+
+// Display prescription details in modal
+function displayPrescriptionModal(prescription) {
+    prescriptionModalTitle.textContent = `Prescription Details - ${new Date(prescription.created_at).toLocaleDateString()}`;
+    
+    let modalContent = `
+        <div class="prescription-details-modal">
             <div class="detail-section">
                 <h4>Prescription Information</h4>
                 <div class="prescription-details">
                     <p><strong>Diagnosis:</strong> ${prescription.diagnosis || 'Not specified'}</p>
                     ${prescription.next_visit_date ? `<p><strong>Next Visit:</strong> ${new Date(prescription.next_visit_date).toLocaleDateString()}</p>` : ''}
+                    ${prescription.suggested_tests ? `<p><strong>Suggested Tests:</strong> ${prescription.suggested_tests}</p>` : ''}
+                    ${prescription.doctor_notes ? `<p><strong>Doctor Notes:</strong> ${prescription.doctor_notes}</p>` : ''}
                 </div>
+            </div>
+    `;
+    
+    // Add medications if available
+    if (prescription.medications && prescription.medications.length > 0) {
+        modalContent += `
+            <div class="detail-section">
+                <h4>Medications</h4>
+                <div class="medication-list">
         `;
         
-        // Add prescription items if available
-        if (prescription.items && prescription.items.length > 0) {
+        prescription.medications.forEach(medication => {
             modalContent += `
-                <div class="prescription-items">
-                    <h5>Medications</h5>
-                    <div class="medication-list">
-            `;
-            
-            prescription.items.forEach(item => {
-                modalContent += `
-                    <div class="medication-item">
-                        <h6>${item.drug_name}</h6>
-                        <p><strong>Dosage:</strong> ${item.dosage}</p>
-                        <p><strong>Duration:</strong> ${item.duration}</p>
-                        <p><strong>Instructions:</strong> ${item.instructions || 'As prescribed'}</p>
-                    </div>
-                `;
-            });
-            
-            modalContent += `
+                <div class="medication-item">
+                    <h5>${medication.drug_name}</h5>
+                    <div class="medication-details">
+                        <p><strong>Dosage:</strong> ${medication.dosage}</p>
+                        <p><strong>Frequency:</strong> ${medication.frequency}</p>
+                        <p><strong>Duration:</strong> ${medication.duration}</p>
+                        ${medication.notes ? `<p><strong>Notes:</strong> ${medication.notes}</p>` : ''}
                     </div>
                 </div>
             `;
-        }
+        });
         
-        modalContent += `</div>`;
+        modalContent += `
+                </div>
+            </div>
+        `;
     }
     
     modalContent += `</div>`;
     
-    modalBody.innerHTML = modalContent;
-    showModal();
+    prescriptionModalBody.innerHTML = modalContent;
+    showPrescriptionModal();
 }
 
 // Helper functions
@@ -396,6 +505,23 @@ function formatPaymentMethod(method) {
     return methodTexts[method] || method;
 }
 
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
 // UI state functions
 function showLoading() {
     loadingState.style.display = 'block';
@@ -425,12 +551,23 @@ function showNoAppointments() {
     noAppointments.style.display = 'block';
 }
 
-function showModal() {
+// Modal functions
+function showAppointmentModal() {
     appointmentModal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
 
-function hideModal() {
+function hideAppointmentModal() {
     appointmentModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function showPrescriptionModal() {
+    prescriptionModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function hidePrescriptionModal() {
+    prescriptionModal.style.display = 'none';
     document.body.style.overflow = 'auto';
 } 

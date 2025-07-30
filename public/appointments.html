@@ -32,6 +32,14 @@
             <p>View your past and upcoming appointments with detailed information and prescriptions</p>
         </div>
 
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All Appointments</button>
+            <button class="filter-tab" data-filter="past">Past</button>
+            <button class="filter-tab" data-filter="upcoming">Upcoming</button>
+            <button class="filter-tab" data-filter="with_prescriptions">With Prescriptions</button>
+        </div>
+
         <!-- Loading State -->
         <div id="loading-state" class="loading-state">
             <div class="loading-spinner"></div>
@@ -65,11 +73,24 @@
     <div id="appointment-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title">Appointment Details</h3>
-                <button id="close-modal" class="close-btn">&times;</button>
+                <h3 id="appointment-modal-title">Appointment Details</h3>
+                <button id="close-appointment-modal" class="close-btn">&times;</button>
             </div>
-            <div class="modal-body" id="modal-body">
-                <!-- Modal content will be populated here -->
+            <div class="modal-body" id="appointment-modal-body">
+                <!-- Appointment details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescription Details Modal -->
+    <div id="prescription-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="prescription-modal-title">Prescription Details</h3>
+                <button id="close-prescription-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="prescription-modal-body">
+                <!-- Prescription details will be populated here -->
             </div>
         </div>
     </div>
