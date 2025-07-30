@@ -9,3 +9,4 @@ Homepage:
 
 (For all pages) The header and footer needs updating (according to homepage)
 (For some pages including homepage) Add "Find Doctors" option in the top right corner
+(Dashboard) Add Change Password Functionality to Dashboard

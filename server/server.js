@@ -10,10 +10,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from public directory
+app.use(express.static('../public'));
+
 // Import routes
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const branchesRoutes = require('./routes/branchesRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
 // Add more route imports as needed
 
 // Test database connection on server start
@@ -29,11 +33,12 @@ pool.connect((err, client, release) => {
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/branches', branchesRoutes);
+app.use('/api/appointments', appointmentRoutes);
 // Add more route uses as needed
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
+  console.error('Unhandled server error:', err.message);
   res.status(500).json({ error: 'Internal server error.' });
 });
 

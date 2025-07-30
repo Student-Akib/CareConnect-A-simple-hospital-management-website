@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Logout functionality
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            localStorage.clear();
+            localStorage.removeItem('token');
             window.location.href = '/login.html';
         });
     }

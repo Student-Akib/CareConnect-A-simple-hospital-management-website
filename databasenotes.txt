@@ -1,0 +1,2 @@
+add constraint to username that it can't have spaces
+Add trigger that automatically cancells appointments that were not visited but have a past visit date

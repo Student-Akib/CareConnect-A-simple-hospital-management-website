@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | CareConnect</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container dashboard-nav">
+            <a href="/index.html" class="logo">CareConnect <span aria-label="stethoscope" role="img" style="color:#007bff;">🩺</span></a>
+            <div class="header-actions">
+                <div class="notif-center" id="notif-center" aria-label="Notifications" tabindex="0">
+                    <span class="notif-bell" aria-label="Notifications">🔔</span>
+                    <span class="notif-badge" id="notif-badge">0</span>
+                    <div class="notif-dropdown" id="notif-dropdown" style="display:none">
+                        <div class="notif-list" id="notif-list"></div>
+                    </div>
+                </div>
+                <button id="logout-btn" class="logout-btn">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Profile Header -->
+        <section class="profile-header">
+            <h1>My Profile</h1>
+            <p>Manage your personal information and account details</p>
+        </section>
+
+        <!-- Profile Form -->
+        <section class="profile-section">
+            <div class="profile-card">
+                <h2>Personal Information</h2>
+                <form id="profile-form" class="profile-form">
+                    <!-- Account Information -->
+                    <div class="form-group">
+                        <label for="userId">User ID</label>
+                        <input type="text" id="userId" name="userId" readonly>
+                        <small class="form-help">System-generated identifier</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patientId">Patient ID</label>
+                        <input type="text" id="patientId" name="patientId" readonly>
+                        <small class="form-help">Medical record identifier</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" readonly>
+                        <small class="form-help">Username cannot be changed</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" readonly>
+                        <small class="form-help">Email address cannot be changed</small>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sex">Sex</label>
+                        <input type="text" id="sex-display" name="sex-display" readonly>
+                        <select id="sex" name="sex" style="display: none;">
+                            <option value="">Select sex</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                            <option value="O">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bloodType">Blood Type</label>
+                        <input type="text" id="bloodType-display" name="bloodType-display" readonly>
+                        <select id="bloodType" name="bloodType" style="display: none;">
+                            <option value="">Select blood type</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+
+                    <!-- View Mode Actions -->
+                    <div class="form-actions" id="view-actions">
+                        <button type="button" class="btn btn-primary" id="edit-btn">Edit Profile</button>
+                        <button type="button" class="btn btn-danger" id="delete-account-btn">Delete Account</button>
+                    </div>
+
+                    <!-- Edit Mode Actions -->
+                    <div class="form-actions" id="edit-actions" style="display: none;">
+                        <button type="submit" class="btn btn-primary" id="save-btn">
+                            <span class="btn-text">Update Profile</span>
+                            <span class="btn-loading" style="display: none;">Saving...</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-about">
+                <h4>About CareConnect</h4>
+                <p>CareConnect Hospital is committed to delivering compassionate, high-quality healthcare to our community. Our team of dedicated professionals is here to support you and your family at every stage of your health journey.</p>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact Us</h4>
+                <p>Email: info@careconnect.com</p>
+                <p>Phone: (123) 456-7890</p>
+                <p>123 Wellness Ave, Healthy City, 12345</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 CareConnect Hospital. All rights reserved.
+        </div>
+    </footer>
+
+    <script type="module" src="/js/profile.js"></script>
+</body>
+</html> 

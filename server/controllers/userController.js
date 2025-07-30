@@ -1,35 +1,34 @@
 const pool = require('../db');
 require('dotenv').config();
 
-// Get all users (admin only, for demo)
-exports.getAllUsers = async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT external_user_id, external_username, external_user_email, patient_id, created_at FROM external_user`
-    );
-    res.json(rows);
-  } catch (err) {
-    console.error('getAllUsers error:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-};
 
 // Update user profile (calls update_patient_profile)
 exports.updateProfile = async (req, res) => {
   try {
     const extUserId = req.user.userId;
     const { name, phone, dob, sex, bloodType } = req.body;
+    
+    // Input sanitization
+    const sanitizedName = name ? name.trim() : null;
+    const sanitizedPhone = phone ? phone.trim() : null;
+    const sanitizedDob = dob ? dob.trim() : null;
+    const sanitizedSex = sex ? sex.trim() : null;
+    const sanitizedBloodType = bloodType ? bloodType.trim() : null;
+    
+    console.log('Profile update request for user:', extUserId);
+
     const { rows } = await pool.query(
-      `SELECT update_patient_profile($1, $2, $3, $4, $5, $6) AS updated`,
+      `SELECT update_external_user_profile($1, $2, $3, $4, $5, $6) AS updated`,
       [
         extUserId,
-        name || null,
-        phone || null,
-        dob || null,
-        sex || null,
-        bloodType || null
+        sanitizedName,
+        sanitizedPhone,
+        sanitizedDob,
+        sanitizedSex,
+        sanitizedBloodType
       ]
     );
+    
     if (rows[0].updated) {
       res.json({ message: 'Profile updated' });
     } else {
@@ -37,6 +36,7 @@ exports.updateProfile = async (req, res) => {
     }
   } catch (err) {
     if (err.code === 'P0001') {
+      console.error('Database function error:', err.message);
       return res.status(400).json({ error: err.message });
     }
     console.error('updateProfile error:', err);
@@ -48,9 +48,24 @@ exports.updateProfile = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const extUserId = req.user.userId;
-    await pool.query(`DELETE FROM external_user WHERE external_user_id = $1`, [extUserId]);
-    res.json({ message: 'User deleted' });
+    
+    console.log('User deletion request for user:', extUserId);
+    
+    const { rows } = await pool.query(
+      `SELECT delete_external_user($1) AS deleted`,
+      [extUserId]
+    );
+    
+    if (rows[0].deleted) {
+      res.json({ message: 'User and all related data deleted successfully' });
+    } else {
+      res.status(400).json({ error: 'Delete failed' });
+    }
   } catch (err) {
+    if (err.code === 'P0001') {
+      console.error('Database function error during deletion:', err.message);
+      return res.status(400).json({ error: err.message });
+    }
     console.error('deleteUser error:', err);
     res.status(500).json({ error: 'Server error' });
   }
@@ -60,6 +75,9 @@ exports.deleteUser = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const extUserId = req.user.userId;
+    
+    console.log('Fetching user profile for user:', extUserId);
+    
     const { rows } = await pool.query(
       `SELECT 
         eu.external_user_id AS id,
@@ -70,14 +88,27 @@ exports.getMe = async (req, res) => {
         p.patient_phone AS phone,
         p.patient_dob AS dob,
         p.patient_sex AS sex,
-        p.patient_blood_type AS bloodType
+        p.patient_blood_type AS "bloodType"
       FROM external_user eu
       JOIN patient p ON p.patient_id = eu.patient_id
       WHERE eu.external_user_id = $1`,
       [extUserId]
     );
-    if (!rows.length) return res.status(404).json({ error: 'User not found' });
+    
+    if (!rows.length) {
+      console.log('User not found:', extUserId);
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
     const u = rows[0];
+    console.log('User profile fetched successfully:', {
+      userId: u.id,
+      username: u.username,
+      patientId: u.patient_id,
+      bloodType: u.bloodType,
+      sex: u.sex
+    });
+    
     res.json({
       id: u.id,
       username: u.username,
@@ -88,7 +119,7 @@ exports.getMe = async (req, res) => {
         phone: u.phone,
         dob: u.dob,
         sex: u.sex,
-        bloodType: u.bloodtype
+        bloodType: u.bloodType ? u.bloodType.trim() : null
       }
     });
   } catch (err) {
@@ -101,6 +132,9 @@ exports.getMe = async (req, res) => {
 exports.getNotifications = async (req, res) => {
   try {
     const extUserId = req.user.userId;
+    
+    console.log('Fetching notifications for user:', extUserId);
+    
     const { rows } = await pool.query(
       `SELECT
          notification_id AS id,
@@ -115,7 +149,14 @@ exports.getNotifications = async (req, res) => {
        LIMIT 10`,
       [extUserId]
     );
+    
     const unreadCount = rows.filter(n => n.status === 'unread').length;
+    console.log('Notifications fetched:', {
+      userId: extUserId,
+      totalNotifications: rows.length,
+      unreadCount: unreadCount
+    });
+    
     res.json({ unreadCount, notifications: rows });
   } catch (err) {
     console.error('getNotifications error:', err);
@@ -123,10 +164,3 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-// Dashboard endpoint (protected)
-exports.getDashboard = (req, res) => {
-  res.json({
-    message: `Welcome to your dashboard, ${req.user.username}!`,
-    user: req.user
-  });
-};
